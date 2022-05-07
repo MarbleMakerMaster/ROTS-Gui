@@ -9,12 +9,21 @@ local mouse = localPlayer:GetMouse()
 local changeValue = workspace.ChangeValue
 local purchase = workspace.DoShopPurchase
 
-local themes = {
+local slimeTheme = {
 	Background = Color3.fromRGB(3, 10, 6),
 	Glow = Color3.fromRGB(0, 0, 0),
 	Accent = Color3.fromRGB(35, 91, 49),
 	LightContrast = Color3.fromRGB(9, 27, 17),
 	DarkContrast = Color3.fromRGB(21, 53, 31),  
+	TextColor = Color3.fromRGB(255, 255, 255)
+}
+
+local darkTheme = {
+	Background = Color3.fromRGB(24, 24, 24),
+	Glow = Color3.fromRGB(0, 0, 0),
+	Accent = Color3.fromRGB(10, 10, 10),
+	LightContrast = Color3.fromRGB(20, 20, 20),
+	DarkContrast = Color3.fromRGB(14, 14, 14),  
 	TextColor = Color3.fromRGB(255, 255, 255)
 }
 
@@ -194,15 +203,16 @@ end)
 -- new page
 local theme = venyx:addPage("Theme", 5012544944)
 local colors = theme:addSection("Colors")
+local themes = theme:addSection("Themes")
 
-for theme, color in pairs(themes) do
+for theme, color in pairs(slimeTheme) do
 	colors:addColorPicker(theme, color, function(color3)
 		venyx:setTheme(theme, color3)
 	end)
 end
 
-local function recolor()
-	for theme, color in pairs(themes) do
+local function recolor(stheme)
+	for theme, color in pairs(stheme) do
 		venyx:setTheme(theme, color)
 		colors:updateColorPicker(tostring(theme), tostring(theme), color)
 	end
@@ -210,11 +220,13 @@ end
 
 recolor()
 
-colors:addButton("Reset Colors", function()
-	recolor()
+themes:addButton("Slime Green (Default)", function()
+	recolor(slimeTheme)
 end)
 
-
+themes:addButton("Dark", function()
+	recolor(darkTheme)
+end)
 
 -- new page
 local credits = venyx:addPage("Credits", 5012544693)
