@@ -46,7 +46,7 @@ local gear = {
 	"R80",
 	"SpikeGrenade"
 }
-local skills = {"No Skill", "Fire", "Explosive", "Lightning", "Ice", "Meteor", "Black Hole", "Plague", "Nuclear"}
+local skills = {"No Skill", "Fire", "Explosive", "Lightning", "Ice", "Meteor", "Black Hole", "Plague", "Nuclear", "Random"}
 
 local coinsAmount = 1000000
 
@@ -79,11 +79,17 @@ end
 local function shootSlimes()
 	if workspace:FindFirstChild("Slimes") and localPlayer.Character:FindFirstChild("Bow") then
 		for i,v in pairs(workspace.Slimes:GetChildren()) do
+			if selectedSkill == "skill9" then
+				selectedSkill = "skill"..tostring(math.random(1,8))
+			end
+			
 			if v:FindFirstChild("Inner") then
 				localPlayer.Character.Bow.Shoot.RemoteEvent:FireServer(v.Inner.Position, selectedSkill)
 			else
 				localPlayer.Character.Bow.Shoot.RemoteEvent:FireServer(v:FindFirstChildOfClass("Part"), selectedSkill)
 			end
+			
+			selectedSkill = "skill9"
 		end
 	end
 end
@@ -251,7 +257,12 @@ while wait(rapidFireTime/1000) do
 	if rapidFire then
 		if localPlayer.Character:FindFirstChild("Bow") then
 			if selectedSkill ~= nil then
+				if selectedSkill == "skill9" then
+					selectedSkill = "skill"..tostring(math.random(1,8))
+				end
+				
 				localPlayer.Character:FindFirstChild("Bow").Shoot.RemoteEvent:FireServer(mouse.Hit.p, selectedSkill);
+				selectedSkill = "skill9"
 			end
 		end
 	end
