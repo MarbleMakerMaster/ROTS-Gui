@@ -218,7 +218,7 @@ local function recolor(stheme)
 	end
 end
 
-recolor()
+recolor(slimeTheme)
 
 themes:addButton("Slime Green (Default)", function()
 	recolor(slimeTheme)
