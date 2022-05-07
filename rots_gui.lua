@@ -50,10 +50,10 @@ local skills = {"No Skill", "Fire", "Explosive", "Lightning", "Ice", "Meteor", "
 
 local coinsAmount = 1000000
 
+local rapidFire, keepBtool = false, false
 local selectedBow = nil
 local selectedSkill = 0
 local selectedName = "Owner"
-local rapidFire = false
 local rapidFireTime = 80
 
 local function reset()
@@ -79,17 +79,22 @@ end
 local function shootSlimes()
 	if workspace:FindFirstChild("Slimes") and localPlayer.Character:FindFirstChild("Bow") then
 		for i,v in pairs(workspace.Slimes:GetChildren()) do
+			local random = false
+
 			if selectedSkill == "skill9" then
 				selectedSkill = "skill"..tostring(math.random(1,8))
+				random = true
 			end
-			
+
 			if v:FindFirstChild("Inner") then
 				localPlayer.Character.Bow.Shoot.RemoteEvent:FireServer(v.Inner.Position, selectedSkill)
 			else
 				localPlayer.Character.Bow.Shoot.RemoteEvent:FireServer(v:FindFirstChildOfClass("Part"), selectedSkill)
 			end
 			
-			selectedSkill = "skill9"
+			if random then
+				selectedSkill = "skill9"
+			end
 		end
 	end
 end
@@ -147,6 +152,7 @@ end
 local player = venyx:addPage("Player", 5012544092)
 local bowMods = player:addSection("Bow Mods")
 local nametag = player:addSection("Nametag")
+local build = player:addSection("Building")
 
 --BOW MODS
 bowMods:addDropdown("Skill Type...", skills, function(text)
@@ -175,13 +181,31 @@ nametag:addButton("Change Nametag (KILLS YOU!)", function()
 	reset()
 end)
 
+build:addToggle("Keep Clone Tool", false, function(value)
 
+end)
+
+build:addToggle("Delete Anything (WIP)", false, function(value)
+
+end)
+
+build:addButton("Build Wall (WIP)", function()
+
+end)
+
+build:addButton("Build Turrets (WIP)", function()
+
+end)
+
+build:addButton("Trap Spawn (WIP)", function()
+
+end)
 
 -- new page
 local keybinds = venyx:addPage("Keybinds", 5012544372)
 local keybindsSection = keybinds:addSection("Keybinds")
 
-keybindsSection:addKeybind("Toggle GUI", Enum.KeyCode.Delete, function()
+keybindsSection:addKeybind("Toggle GUI", Enum.KeyCode.LeftControl, function()
 	venyx:toggle()
 end, function()
 
@@ -253,17 +277,93 @@ end)
 -- load
 venyx:SelectPage(venyx.pages[1], true)
 
-while wait(rapidFireTime/1000) do
-	if rapidFire then
-		if localPlayer.Character:FindFirstChild("Bow") then
-			if selectedSkill ~= nil then
-				if selectedSkill == "skill9" then
-					selectedSkill = "skill"..tostring(math.random(1,8))
-				end
+local bbp = Instance.new("BodyPosition")
+bbp.P = 100000
+
+local function gettool(build)
+	firetouchinterest(build.Handle, localPlayer.Character.Head, 0)
+	firetouchinterest(build.Handle, localPlayer.Character.Head, 1)
+	bbp.Parent = nil
+end
+
+local function droptool(build)
+	bbp.Position = Vector3.new(build.Handle.Position.X, 20000, build.Handle.Position.Z)
+	bbp.Parent = build.Handle
+
+	build.Parent = localPlayer.Character
+	wait()
+	build.Parent = workspace
+end
+
+workspace.GameScript.Time.Changed:Connect(function()
+	if keepBtool then
+		if workspace.GameScript.Time.Value < 1 then
+			local build = localPlayer.Backpack:FindFirstChild("Build") or localPlayer.Character:FindFirstChild("Build")
+
+			if build then 	
+				droptool(build)
 				
-				localPlayer.Character:FindFirstChild("Bow").Shoot.RemoteEvent:FireServer(mouse.Hit.p, selectedSkill);
-				selectedSkill = "skill9"
+				repeat wait() until workspace.GameScript.Time.Value > 1
+
+				if localPlayer.Character.Head then
+					gettool(build)
+				else
+					localPlayer.Character:WaitForChild("Head", math.huge)
+					gettool(build)
+				end
 			end
 		end
 	end
+end)
+
+local function keepBtoolonDeath()
+	localPlayer.Character:WaitForChild("Head")
+
+	if keepBtool then
+		local build = workspace:WaitForChild("Build")
+		
+		print(build)
+		if build then
+			gettool(build)
+		end
+	end
+
+	localPlayer.Character:WaitForChild("Humanoid").Died:Connect(function()
+		if keepBtool then
+			local build = localPlayer.Backpack:FindFirstChild("Build") or localPlayer.Character:FindFirstChild("Build")
+
+			if build then 
+				droptool(build)
+			end
+		end
+	end)
 end
+
+localPlayer.CharacterAdded:Connect(function()
+	keepBtoolonDeath()
+end)
+
+keepBtoolonDeath()
+
+spawn(function()
+	while wait(rapidFireTime/1000) do
+		if rapidFire then
+			if localPlayer.Character:FindFirstChild("Bow") then
+				if selectedSkill ~= nil then
+					local random = false
+					
+					if selectedSkill == "skill9" then
+						selectedSkill = "skill"..tostring(math.random(1,8))
+						random = true
+					end
+					
+					localPlayer.Character:FindFirstChild("Bow").Shoot.RemoteEvent:FireServer(mouse.Hit.p, selectedSkill);
+					
+					if random then
+						selectedSkill = "skill9"
+					end
+				end
+			end
+		end
+	end
+end)
